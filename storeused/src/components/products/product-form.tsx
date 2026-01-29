@@ -13,69 +13,88 @@ import { Input } from "@/components/base/input/input";
 import { CategorySelector } from "@/components/category-selector";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createProduct, updateProduct, type Product } from "@/lib/api/products";
-import { uploadProductImage } from "@/app/actions";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, X, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-    Dropzone,
-    DropzoneEmptyState,
-    DropzoneContent
-} from "@/components/kibo-ui/dropzone";
 
 interface ProductFormProps {
-    initialData?: Product;
+    initialData?: any;
 }
 
 export function ProductForm({ initialData }: ProductFormProps) {
     const router = useRouter();
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
-    const [files, setFiles] = React.useState<File[]>([]);
+    const [imageFile, setImageFile] = React.useState<File | null>(null);
+    const [imagePreview, setImagePreview] = React.useState<string | null>(
+        initialData?.image_url || null
+    );
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                setError('Please select a valid image file');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setError('Image size must be less than 5MB');
+                return;
+            }
+
+            setImageFile(file);
+            setError(null);
+
+            // Create preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setImageFile(null);
+        setImagePreview(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
-        const formData = new FormData(e.currentTarget);
-        let imageUrl = formData.get("image_url") as string;
-
         try {
-            if (files.length > 0) {
-                const uploadFormData = new FormData();
-                uploadFormData.append('file', files[0]);
-                const result = await uploadProductImage(uploadFormData);
+            const formData = new FormData(e.currentTarget);
 
-                if (result.error) {
-                    throw new Error(result.error);
-                }
-
-                if (result.url) {
-                    imageUrl = result.url;
-                }
+            // Add image file if selected
+            if (imageFile) {
+                formData.append('image', imageFile);
             }
 
-            const productData = {
-                name: formData.get("name") as string,
-                description: formData.get("description") as string,
-                price: parseFloat(formData.get("price") as string),
-                stock_quantity: parseInt(formData.get("stock") as string),
-                category: formData.get("category") as string,
-                image_url: imageUrl,
-                is_active: true,
-            };
+            const response = await fetch('/api/products', {
+                method: 'POST',
+                body: formData,
+            });
 
-            if (initialData) {
-                await updateProduct(initialData.id, productData);
-            } else {
-                await createProduct(productData);
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to create product');
             }
+
+            // Success! Redirect to products page
             router.push("/products");
             router.refresh();
         } catch (err: any) {
-            console.error(err);
+            console.error('Form submission error:', err);
             setError(err.message || "Failed to save product.");
         } finally {
             setLoading(false);
@@ -95,7 +114,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                         </CardHeader>
                         <CardContent className="grid gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Product Name</Label>
+                                <Label htmlFor="name">Product Name *</Label>
                                 <Input
                                     id="name"
                                     name="name"
@@ -123,7 +142,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                         </CardHeader>
                         <CardContent className="grid gap-4 sm:grid-cols-2">
                             <div className="grid gap-2">
-                                <Label htmlFor="price">Price ($)</Label>
+                                <Label htmlFor="price">Price ($) *</Label>
                                 <Input
                                     id="price"
                                     name="price"
@@ -135,7 +154,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="stock">Stock Quantity</Label>
+                                <Label htmlFor="stock">Stock Quantity *</Label>
                                 <Input
                                     id="stock"
                                     name="stock"
@@ -165,31 +184,52 @@ export function ProductForm({ initialData }: ProductFormProps) {
                     <Card>
                         <CardHeader>
                             <CardTitle>Product Image</CardTitle>
+                            <CardDescription>
+                                Upload a product image (max 5MB)
+                            </CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
-                            <Dropzone
-                                src={files}
-                                onDrop={(acceptedFiles) => setFiles(acceptedFiles)}
-                                maxFiles={1}
-                                accept={{ "image/*": [".png", ".jpg", ".jpeg", ".webp"] }}
-                            >
-                                <DropzoneEmptyState />
-                                <DropzoneContent />
-                            </Dropzone>
-                            <div className="grid gap-2">
-                                <Label htmlFor="image_url">Or Image URL</Label>
-                                <Input
-                                    id="image_url"
-                                    name="image_url"
-                                    defaultValue={initialData?.image_url}
-                                    placeholder="https://example.com/image.jpg"
-                                />
-                            </div>
+                            {imagePreview ? (
+                                <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted">
+                                    <img
+                                        src={imagePreview}
+                                        alt="Product preview"
+                                        className="h-full w-full object-cover"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveImage}
+                                        className="absolute top-2 right-2 rounded-full bg-destructive p-1.5 text-destructive-foreground shadow-sm hover:bg-destructive/90 transition-colors"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 transition-colors hover:border-muted-foreground/50 hover:bg-muted"
+                                >
+                                    <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                                    <div className="text-center">
+                                        <p className="text-sm font-medium">Click to upload</p>
+                                        <p className="text-xs text-muted-foreground">PNG, JPG, WEBP (max 5MB)</p>
+                                    </div>
+                                </div>
+                            )}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="hidden"
+                            />
                         </CardContent>
                     </Card>
 
                     {error && (
-                        <p className="text-sm font-medium text-destructive">{error}</p>
+                        <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
+                            <p className="text-sm font-medium text-destructive">{error}</p>
+                        </div>
                     )}
 
                     <div className="flex flex-col gap-2">

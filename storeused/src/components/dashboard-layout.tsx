@@ -17,7 +17,6 @@ import {
 import { FeaturedCardProgressBar } from "@/components/application/app-navigation/base-components/featured-cards";
 import type { NavItemType } from "@/components/application/app-navigation/config";
 import { SidebarNavigationSimple } from "@/components/application/app-navigation/sidebar-navigation/sidebar-simple";
-import { BadgeWithDot } from "@/components/base/badges/badges";
 
 const navItems: NavItemType[] = [
     {
@@ -60,13 +59,8 @@ const footerNavItems: NavItemType[] = [
     },
     {
         label: "Support",
-        href: "#",
+        href: "/support",
         icon: MessageChatCircle,
-        badge: (
-            <BadgeWithDot color="success" type="modern" size="sm">
-                Online
-            </BadgeWithDot>
-        ),
     },
 ];
 

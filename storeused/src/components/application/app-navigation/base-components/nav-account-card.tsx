@@ -89,31 +89,6 @@ export const NavAccountMenu = ({
                 <div className="flex flex-col gap-0.5 py-1.5">
                     <NavAccountCardMenuItem label="View profile" icon={User01} shortcut="⌘K->P" />
                     <NavAccountCardMenuItem label="Account settings" icon={Settings01} shortcut="⌘S" />
-                    <NavAccountCardMenuItem label="Documentation" icon={BookOpen01} />
-                </div>
-                <div className="flex flex-col gap-0.5 border-t border-secondary py-1.5">
-                    <div className="px-3 pt-1.5 pb-1 text-xs font-semibold text-tertiary">Switch account</div>
-
-                    <div className="flex flex-col gap-0.5 px-1.5">
-                        {placeholderAccounts.map((account) => (
-                            <button
-                                key={account.id}
-                                className={cx(
-                                    "relative w-full cursor-pointer rounded-md px-2 py-1.5 text-left outline-focus-ring hover:bg-primary_hover focus:z-10 focus-visible:outline-2 focus-visible:outline-offset-2",
-                                    account.id === selectedAccountId && "bg-primary_hover",
-                                )}
-                            >
-                                <AvatarLabelGroup status="online" size="md" src={account.avatar} title={account.name} subtitle={account.email} />
-
-                                <RadioButtonBase isSelected={account.id === selectedAccountId} className="absolute top-2 right-2" />
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                <div className="flex flex-col gap-2 px-2 pt-0.5 pb-2">
-                    <Button iconLeading={Plus} color="secondary" size="sm">
-                        Add account
-                    </Button>
                 </div>
             </div>
 
@@ -190,7 +165,6 @@ export const NavAccountCard = ({
                 src={selectedAccount.avatar}
                 title={selectedAccount.name}
                 subtitle={selectedAccount.email}
-                status={selectedAccount.status}
             />
 
             <div className="absolute top-1.5 right-1.5">

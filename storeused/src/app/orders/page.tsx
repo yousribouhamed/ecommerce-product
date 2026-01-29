@@ -27,6 +27,15 @@ import { format } from "date-fns";
 import { ArrowLeft, Loader2, Package, Search } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/base/input/input";
+import {
+    Empty,
+    EmptyHeader,
+    EmptyTitle,
+    EmptyDescription,
+    EmptyContent,
+    EmptyMedia,
+} from "@/components/ui/empty";
+import Image from "next/image";
 
 export default function OrdersPage() {
     const [orders, setOrders] = React.useState<Order[]>([]);
@@ -74,7 +83,7 @@ export default function OrdersPage() {
                 const status = row.original.status;
                 const variant =
                     status === 'Delivered' ? 'success' :
-                        status === 'Shipped' ? 'info' :
+                        status === 'Shipped' ? 'secondary' :
                             status === 'Processing' ? 'warning' :
                                 status === 'Cancelled' ? 'destructive' : 'default';
                 return <Badge variant={variant}>{status}</Badge>;
@@ -139,11 +148,24 @@ export default function OrdersPage() {
                                 <Button size="lg" onClick={() => window.location.reload()}>Retry</Button>
                             </div>
                         ) : orders.length === 0 ? (
-                            <div className="flex h-64 flex-col items-center justify-center gap-2 text-center">
-                                <Package className="h-12 w-12 text-muted-foreground opacity-20" />
-                                <p className="font-medium">No orders found</p>
-                                <p className="text-sm text-muted-foreground">When customers buy products, they will appear here.</p>
-                            </div>
+                            <Empty className="py-24">
+                                <EmptyMedia>
+                                    <div className="relative size-40 opacity-90 transition-opacity hover:opacity-100">
+                                        <Image
+                                            src="/images/banana-empty.png"
+                                            alt="No orders"
+                                            fill
+                                            className="object-contain"
+                                        />
+                                    </div>
+                                </EmptyMedia>
+                                <EmptyHeader>
+                                    <EmptyTitle>No orders found</EmptyTitle>
+                                    <EmptyDescription>
+                                        When customers buy products from your store, their orders will appear here.
+                                    </EmptyDescription>
+                                </EmptyHeader>
+                            </Empty>
                         ) : (
                             <TableProvider columns={columns} data={orders}>
                                 <TableHeader>

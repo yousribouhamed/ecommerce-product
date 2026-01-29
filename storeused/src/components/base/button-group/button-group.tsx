@@ -47,7 +47,7 @@ export function ButtonGroupItem({
             variant="outline"
             size="default"
             className={cn(
-                "h-11 rounded-none first:rounded-l-lg last:rounded-r-lg border-[#D0D5DD] bg-white hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-brand-500 text-[#344054] font-medium px-4",
+                "h-11 rounded-none first:rounded-l-lg last:rounded-r-lg border-border bg-background hover:bg-muted focus:z-10 focus:ring-2 focus:ring-primary text-foreground font-semibold px-4",
                 className
             )}
             {...props}

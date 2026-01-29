@@ -26,6 +26,15 @@ import { getProducts, type Product } from "@/lib/api/products";
 import { Loader2, Package, Plus, Search, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/base/input/input";
+import {
+    Empty,
+    EmptyHeader,
+    EmptyTitle,
+    EmptyDescription,
+    EmptyContent,
+    EmptyMedia,
+} from "@/components/ui/empty";
+import Image from "next/image";
 
 export default function ProductsPage() {
     const [products, setProducts] = React.useState<Product[]>([]);
@@ -158,14 +167,32 @@ export default function ProductsPage() {
                                 <Button size="lg" onClick={() => window.location.reload()}>Retry</Button>
                             </div>
                         ) : products.length === 0 ? (
-                            <div className="flex h-64 flex-col items-center justify-center gap-2 text-center">
-                                <Package className="h-12 w-12 text-muted-foreground opacity-20" />
-                                <p className="font-medium">No products found</p>
-                                <p className="text-sm text-muted-foreground">Start by adding your first product to the store.</p>
-                                <Button className="mt-4" size="lg" render={
-                                    <Link href="/products/new">Add Product</Link>
-                                } />
-                            </div>
+                            <Empty className="py-24">
+                                <EmptyMedia>
+                                    <div className="relative size-40 opacity-90 transition-opacity hover:opacity-100">
+                                        <Image
+                                            src="/images/banana-empty.png"
+                                            alt="No products"
+                                            fill
+                                            className="object-contain"
+                                        />
+                                    </div>
+                                </EmptyMedia>
+                                <EmptyHeader>
+                                    <EmptyTitle>No products found</EmptyTitle>
+                                    <EmptyDescription>
+                                        Your inventory is currently empty. Start by adding your first product to the store.
+                                    </EmptyDescription>
+                                </EmptyHeader>
+                                <EmptyContent>
+                                    <Button size="lg" render={
+                                        <Link href="/products/new">
+                                            <Plus className="mr-2 h-4 w-4" />
+                                            Add Product
+                                        </Link>
+                                    } />
+                                </EmptyContent>
+                            </Empty>
                         ) : (
                             <TableProvider columns={columns} data={products}>
                                 <TableHeader>

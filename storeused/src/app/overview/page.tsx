@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import KiboTableExample from "@/components/kibo-table-example";
 import { DesignSystemTable } from "@/components/design-system-table";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -48,6 +47,15 @@ import {
     TableColumnHeader,
     type ColumnDef
 } from "@/components/kibo-ui/table";
+import {
+    Empty,
+    EmptyHeader,
+    EmptyTitle,
+    EmptyDescription,
+    EmptyContent,
+    EmptyMedia,
+} from "@/components/ui/empty";
+import Image from "next/image";
 
 const revenueInsight = `+${faker.number.float({ min: 5, max: 25, fractionDigits: 1 })}% vs last month`;
 
@@ -171,26 +179,15 @@ export default function DashboardPage() {
         {
             accessorKey: "wilaya",
             header: ({ column }) => <TableColumnHeader column={column} title="Wilaya" />,
-            cell: ({ row }) => <div className="font-medium text-primary">{row.original.wilaya}</div>,
+            cell: ({ row }) => <div className="font-medium text-foreground">{row.original.wilaya}</div>,
         },
         {
             accessorKey: "customer",
             header: ({ column }) => <TableColumnHeader column={column} title="Customer" />,
             cell: ({ row }) => (
-                <div className="flex items-center gap-3">
-                    <Avatar className="size-8">
-                        <AvatarImage src={row.original.customer.avatar} />
-                        <AvatarFallback>{row.original.customer.initials}</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-0.5">
-                        <p className="text-sm font-medium leading-none">
-                            {row.original.customer.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                            {row.original.customer.email}
-                        </p>
-                    </div>
-                </div>
+                <p className="text-sm font-medium leading-none">
+                    {row.original.customer.name}
+                </p>
             ),
         },
         {
@@ -230,7 +227,7 @@ export default function DashboardPage() {
                 const status = row.original.status;
                 if (status === 'Not Reachable') {
                     return (
-                        <Button variant="ghost" size="icon" className="ml-auto text-black" render={
+                        <Button variant="ghost" size="icon" className="ml-auto text-foreground" render={
                             <a href={`tel:${row.original.customer.phone}`}>
                                 <Phone className="size-4" />
                                 <span className="sr-only">Call</span>
@@ -297,11 +294,22 @@ export default function DashboardPage() {
         <DashboardLayout>
             <div className="flex flex-col gap-4 py-2">
                 {/* Banner Section */}
-                <section className="relative overflow-hidden rounded-2xl bg-primary p-8 text-primary-foreground shadow-lg">
+                <section className="relative overflow-hidden rounded-2xl bg-zinc-950 p-8 text-primary-foreground shadow-lg border border-white/5">
+                    {/* Background Image with Fill Behavior */}
+                    <div className="absolute inset-0 z-0">
+                        <img
+                            src="/images/banner.png"
+                            alt="Banner background"
+                            className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                        />
+                        {/* Dark Overlay for Readability */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/60 to-transparent" />
+                    </div>
+
                     <div className="relative z-10 max-w-2xl">
-                        <h1 className="text-3xl font-bold md:text-4xl">Good morning, John!</h1>
-                        <p className="mt-2 text-primary-foreground/80">
-                            Your store is doing great today. You've made <span className="font-semibold text-primary-foreground underline decoration-2 underline-offset-4">$1,284.00</span> in sales so far.
+                        <h1 className="text-3xl font-bold md:text-4xl text-white">Good morning, John!</h1>
+                        <p className="mt-2 text-zinc-300">
+                            Your store is doing great today. You've made <span className="font-semibold text-white underline decoration-2 underline-offset-4">$1,284.00</span> in sales so far.
                         </p>
                         <div className="mt-6 flex flex-wrap gap-3">
                             <Button size="lg" variant="secondary" className="gap-2" render={
@@ -311,10 +319,9 @@ export default function DashboardPage() {
                                 </Link>
                             } />
                             <Button size="lg" variant="secondary">View Reports</Button>
-                            <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground/30 hover:bg-primary-foreground/10 text-primary-foreground">Manage Inventory</Button>
+                            <Button size="lg" variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-white backdrop-blur-sm">Manage Inventory</Button>
                         </div>
                     </div>
-                    <div className="absolute right-0 top-0 h-full w-1/3 opacity-20 bg-gradient-to-l from-white/20 to-transparent pointer-events-none" />
                 </section>
 
                 {/* Button Group */}
@@ -402,22 +409,48 @@ export default function DashboardPage() {
                             />
                         </div>
                         <CardContent>
-                            <TableProvider columns={recentOrdersColumns} data={filteredOrders}>
-                                <TableHeader>
-                                    {({ headerGroup }) => (
-                                        <TableHeaderGroup headerGroup={headerGroup} key={headerGroup.id}>
-                                            {({ header }) => <TableHead header={header} key={header.id} />}
-                                        </TableHeaderGroup>
-                                    )}
-                                </TableHeader>
-                                <TableBody>
-                                    {({ row }) => (
-                                        <TableRow key={row.id} row={row}>
-                                            {({ cell }) => <TableCell cell={cell} key={cell.id} />}
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </TableProvider>
+                            {filteredOrders.length > 0 ? (
+                                <TableProvider columns={recentOrdersColumns} data={filteredOrders}>
+                                    <TableHeader>
+                                        {({ headerGroup }) => (
+                                            <TableHeaderGroup headerGroup={headerGroup} key={headerGroup.id}>
+                                                {({ header }) => <TableHead header={header} key={header.id} />}
+                                            </TableHeaderGroup>
+                                        )}
+                                    </TableHeader>
+                                    <TableBody>
+                                        {({ row }) => (
+                                            <TableRow key={row.id} row={row}>
+                                                {({ cell }) => <TableCell cell={cell} key={cell.id} />}
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </TableProvider>
+                            ) : (
+                                <Empty className="py-12">
+                                    <EmptyMedia>
+                                        <div className="relative size-32 opacity-90 transition-opacity hover:opacity-100">
+                                            <Image
+                                                src="/images/banana-empty.png"
+                                                alt="Empty state"
+                                                fill
+                                                className="object-contain"
+                                            />
+                                        </div>
+                                    </EmptyMedia>
+                                    <EmptyHeader>
+                                        <EmptyTitle>No orders found</EmptyTitle>
+                                        <EmptyDescription>
+                                            We couldn't find any orders matching your criteria. Try adjusting your filters.
+                                        </EmptyDescription>
+                                    </EmptyHeader>
+                                    <EmptyContent>
+                                        <Button variant="outline" onClick={() => setSelectedStatus("All")}>
+                                            Reset Filters
+                                        </Button>
+                                    </EmptyContent>
+                                </Empty>
+                            )}
                         </CardContent>
                     </Card>
 
@@ -429,22 +462,43 @@ export default function DashboardPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <TableProvider columns={salesColumns} data={recentOrders.slice(0, 5)}>
-                                <TableHeader>
-                                    {({ headerGroup }) => (
-                                        <TableHeaderGroup headerGroup={headerGroup} key={headerGroup.id}>
-                                            {({ header }) => <TableHead header={header} key={header.id} />}
-                                        </TableHeaderGroup>
-                                    )}
-                                </TableHeader>
-                                <TableBody>
-                                    {({ row }) => (
-                                        <TableRow key={row.id} row={row}>
-                                            {({ cell }) => <TableCell cell={cell} key={cell.id} />}
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </TableProvider>
+                            {recentOrders.length > 0 ? (
+                                <TableProvider columns={salesColumns} data={recentOrders.slice(0, 5)}>
+                                    <TableHeader>
+                                        {({ headerGroup }) => (
+                                            <TableHeaderGroup headerGroup={headerGroup} key={headerGroup.id}>
+                                                {({ header }) => <TableHead header={header} key={header.id} />}
+                                            </TableHeaderGroup>
+                                        )}
+                                    </TableHeader>
+                                    <TableBody>
+                                        {({ row }) => (
+                                            <TableRow key={row.id} row={row}>
+                                                {({ cell }) => <TableCell cell={cell} key={cell.id} />}
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </TableProvider>
+                            ) : (
+                                <Empty className="py-8">
+                                    <EmptyMedia>
+                                        <div className="relative size-24 opacity-80">
+                                            <Image
+                                                src="/images/banana-empty.png"
+                                                alt="Empty state"
+                                                fill
+                                                className="object-contain"
+                                            />
+                                        </div>
+                                    </EmptyMedia>
+                                    <EmptyHeader>
+                                        <EmptyTitle className="text-lg">No Sales Data</EmptyTitle>
+                                        <EmptyDescription>
+                                            You haven't made any sales yet.
+                                        </EmptyDescription>
+                                    </EmptyHeader>
+                                </Empty>
+                            )}
                         </CardContent>
                         <CardFooter>
                             <Button variant="outline" size="lg" className="w-full">View All Sales</Button>

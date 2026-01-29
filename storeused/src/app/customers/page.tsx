@@ -27,6 +27,15 @@ import { Loader2, Users, Search, Mail, Phone } from "lucide-react";
 import { format } from "date-fns";
 import { Input } from "@/components/base/input/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+    Empty,
+    EmptyHeader,
+    EmptyTitle,
+    EmptyDescription,
+    EmptyContent,
+    EmptyMedia,
+} from "@/components/ui/empty";
+import Image from "next/image";
 
 export default function CustomersPage() {
     const [customers, setCustomers] = React.useState<Customer[]>([]);
@@ -147,11 +156,24 @@ export default function CustomersPage() {
                                 <Button size="lg" onClick={() => window.location.reload()}>Retry</Button>
                             </div>
                         ) : customers.length === 0 ? (
-                            <div className="flex h-64 flex-col items-center justify-center gap-2 text-center">
-                                <Users className="h-12 w-12 text-muted-foreground opacity-20" />
-                                <p className="font-medium">No customers found</p>
-                                <p className="text-sm text-muted-foreground">When users sign up, they will appear here.</p>
-                            </div>
+                            <Empty className="py-24">
+                                <EmptyMedia>
+                                    <div className="relative size-40 opacity-90 transition-opacity hover:opacity-100">
+                                        <Image
+                                            src="/images/banana-empty.png"
+                                            alt="No customers"
+                                            fill
+                                            className="object-contain"
+                                        />
+                                    </div>
+                                </EmptyMedia>
+                                <EmptyHeader>
+                                    <EmptyTitle>No customers found</EmptyTitle>
+                                    <EmptyDescription>
+                                        Your customer directory is currently empty. When users sign up, they will appear here.
+                                    </EmptyDescription>
+                                </EmptyHeader>
+                            </Empty>
                         ) : (
                             <TableProvider columns={columns} data={customers}>
                                 <TableHeader>

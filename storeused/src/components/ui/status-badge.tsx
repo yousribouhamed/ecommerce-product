@@ -10,18 +10,18 @@ const statusBadgeVariants = cva(
     {
         variants: {
             status: {
-                Active: "text-[#22292f]",
-                Inactive: "text-[#22292f]",
-                Pending: "text-[#22292f]",
+                Active: "text-foreground",
+                Inactive: "text-muted-foreground",
+                Pending: "text-foreground",
             },
             shape: {
                 pill: "rounded-full",
                 rectangle: "rounded-[4px]",
             },
             badgeStyle: {
-                outline: "bg-white border border-[#d5dde2]",
-                filled: "bg-[#f4f7f9]",
-                "filled with borders": "bg-[#e7f6ec] border border-[#10a949]/20",
+                outline: "bg-background border border-border",
+                filled: "bg-muted",
+                "filled with borders": "bg-success/10 border border-success/20 text-success-foreground dark:text-success",
             },
         },
         defaultVariants: {
@@ -35,9 +35,9 @@ const statusBadgeVariants = cva(
 const dotVariants = cva("shrink-0 size-1.5 rounded-full", {
     variants: {
         status: {
-            Active: "bg-[#10a949]",
-            Inactive: "bg-[#e2e8f0]",
-            Pending: "bg-[#f59e0b]",
+            Active: "bg-success",
+            Inactive: "bg-muted-foreground/30",
+            Pending: "bg-warning",
         },
     },
     defaultVariants: {
@@ -62,14 +62,14 @@ function StatusBadge({
     ...props
 }: StatusBadgeProps) {
     const renderIcon = () => {
-        if (trend === "up") return <ArrowUpRight className="size-3 text-[#10a949]" />;
-        if (trend === "down") return <ArrowDownRight className="size-3 text-[#f04438]" />;
+        if (trend === "up") return <ArrowUpRight className="size-3 text-success-foreground dark:text-success" />;
+        if (trend === "down") return <ArrowDownRight className="size-3 text-destructive-foreground dark:text-destructive" />;
         return <div className={dotVariants({ status })} />;
     };
 
     // Use red background for down trends
     const effectiveBadgeStyle = trend === "down" ? undefined : badgeStyle;
-    const trendClassName = trend === "down" ? "bg-[#fef3f2] border border-[#f04438]/20" : "";
+    const trendClassName = trend === "down" ? "bg-destructive/10 border border-destructive/20 text-destructive-foreground dark:text-destructive" : "";
 
     return (
         <div

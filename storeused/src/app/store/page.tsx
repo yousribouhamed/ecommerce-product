@@ -61,7 +61,7 @@ export default function StorePage() {
                         {products.map((product) => (
                             <div key={product.id} className="group relative flex flex-col gap-2">
                                 {/* Image Container */}
-                                <div className="aspect-[1.1] relative bg-muted/20 flex items-center justify-center overflow-hidden rounded-md mb-2">
+                                <div className="aspect-[1.1] relative bg-muted/20 flex items-center justify-center overflow-hidden rounded-[24px] mb-2">
                                     {/* Badges */}
                                     <div className="absolute top-3 left-3 z-10">
                                         <span className="bg-zinc-200 text-zinc-600 px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm tracking-wider">
@@ -88,7 +88,7 @@ export default function StorePage() {
                                         <img
                                             src={product.image_url}
                                             alt={product.name}
-                                            className="h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-110"
+                                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                         />
                                     ) : (
                                         <Package className="h-12 w-12 text-muted-foreground/30" />
