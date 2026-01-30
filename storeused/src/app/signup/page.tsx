@@ -123,7 +123,7 @@ export default function SignupPage() {
                         <div className="space-y-2">
                             <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
                             <CardDescription>
-                                We've sent a confirmation link to <strong>{email}</strong>. Please click it to activate your account.
+                                We&apos;ve sent a confirmation link to <strong>{email}</strong>. Please click it to activate your account.
                             </CardDescription>
                         </div>
                         <div className="space-y-4">

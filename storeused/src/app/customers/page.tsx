@@ -47,8 +47,9 @@ export default function CustomersPage() {
             try {
                 const data = await getCustomers();
                 setCustomers(data);
-            } catch (err: any) {
-                if (err.message?.includes('does not exist')) {
+            } catch (err: unknown) {
+                const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+                if (errorMessage.includes('does not exist')) {
                     setError("Database tables not found. Please run the SQL schema in your Supabase Dashboard.");
                 } else {
                     setError("Failed to fetch customers.");

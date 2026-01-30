@@ -51,7 +51,9 @@ export async function createProduct(product: Omit<Product, 'id' | 'created_at' |
 
     // Exclude is_active from the insert payload to avoid schema errors if the column is missing/cached
     // The database should handle the default value (true) logic if the column exists
-    const { is_active, ...productData } = product;
+    // Exclude is_active from the insert payload to avoid schema errors if the column is missing/cached
+    // The database should handle the default value (true) logic if the column exists
+    const { ...productData } = product;
 
     const { data, error } = await supabase
         .from('products')

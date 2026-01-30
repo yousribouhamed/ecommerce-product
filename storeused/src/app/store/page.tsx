@@ -38,7 +38,7 @@ export default function StorePage() {
                         Welcome to StoreFront
                     </h1>
                     <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl mx-auto">
-                        Discover our curated collection of premium products. Quality you can trust, prices you'll love.
+                        Discover our curated collection of premium products. Quality you can trust, prices you&apos;ll love.
                     </p>
                 </div>
             </div>

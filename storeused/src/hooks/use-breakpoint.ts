@@ -24,13 +24,16 @@ export const useBreakpoint = (size: "sm" | "md" | "lg" | "xl" | "2xl") => {
     useEffect(() => {
         const breakpoint = window.matchMedia(`(min-width: ${screens[size]})`);
 
-        setMatches(breakpoint.matches);
+        if (breakpoint.matches !== matches) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setMatches(breakpoint.matches);
+        }
 
         const handleChange = (value: MediaQueryListEvent) => setMatches(value.matches);
 
         breakpoint.addEventListener("change", handleChange);
         return () => breakpoint.removeEventListener("change", handleChange);
-    }, [size]);
+    }, [size, matches]);
 
     return matches;
 };

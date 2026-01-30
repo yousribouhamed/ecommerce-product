@@ -309,7 +309,7 @@ export default function DashboardPage() {
                     <div className="relative z-10 max-w-2xl">
                         <h1 className="text-3xl font-bold md:text-4xl text-white">Good morning, John!</h1>
                         <p className="mt-2 text-zinc-300">
-                            Your store is doing great today. You've made <span className="font-semibold text-white underline decoration-2 underline-offset-4">$1,284.00</span> in sales so far.
+                            Your store is doing great today. You&apos;ve made <span className="font-semibold text-white underline decoration-2 underline-offset-4">$1,284.00</span> in sales so far.
                         </p>
                         <div className="mt-6 flex flex-wrap gap-3">
                             <Button size="lg" variant="secondary" className="gap-2" render={
@@ -441,7 +441,7 @@ export default function DashboardPage() {
                                     <EmptyHeader>
                                         <EmptyTitle>No orders found</EmptyTitle>
                                         <EmptyDescription>
-                                            We couldn't find any orders matching your criteria. Try adjusting your filters.
+                                            We couldn&apos;t find any orders matching your criteria. Try adjusting your filters.
                                         </EmptyDescription>
                                     </EmptyHeader>
                                     <EmptyContent>
@@ -494,7 +494,7 @@ export default function DashboardPage() {
                                     <EmptyHeader>
                                         <EmptyTitle className="text-lg">No Sales Data</EmptyTitle>
                                         <EmptyDescription>
-                                            You haven't made any sales yet.
+                                            You haven&apos;t made any sales yet.
                                         </EmptyDescription>
                                     </EmptyHeader>
                                 </Empty>

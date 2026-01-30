@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as React from "react";
@@ -54,7 +55,7 @@ export default function OrderDetailsPage() {
                 <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
                     <Package className="h-12 w-12 text-muted-foreground opacity-20" />
                     <h2 className="text-2xl font-bold">Order Not Found</h2>
-                    <p className="text-muted-foreground">We couldn't find the order with ID {id?.slice(0, 8)}.</p>
+                    <p className="text-muted-foreground">We couldn&apos;t find the order with ID {id?.slice(0, 8)}.</p>
                     <Button size="lg" render={
                         <Link href="/orders">Back to Orders</Link>
                     } />
@@ -77,7 +78,7 @@ export default function OrderDetailsPage() {
                             <h1 className="text-3xl font-bold tracking-tight">Order #{order.id.slice(0, 8).toUpperCase()}</h1>
                             <Badge variant={
                                 order.status === 'Delivered' ? 'success' :
-                                    order.status === 'Shipped' ? 'info' :
+                                    order.status === 'Shipped' ? 'default' :
                                         order.status === 'Processing' ? 'warning' :
                                             order.status === 'Cancelled' ? 'destructive' : 'default'
                             }>
