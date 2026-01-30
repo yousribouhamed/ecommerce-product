@@ -159,11 +159,29 @@ const recentOrders = [
         status: "Delivered",
         date: "2023-06-27",
     },
+    // Generate more data for pagination testing
+    ...Array.from({ length: 10 }).map((_, i) => ({
+        id: `ORD-739${7 + i}`,
+        wilaya: ["Algiers", "Oran", "Constantine", "Annaba", "Setif"][i % 5],
+        customer: {
+            name: `Test User ${i + 1}`,
+            email: `test${i + 1}@example.com`,
+            avatar: `/avatars/0${(i % 5) + 1}.png`,
+            initials: `TU`,
+            phone: "+1 (555) 555-0000",
+        },
+        product: ["Wireless Headphones", "Smart Watch", "Mechanical Keyboard", "Gaming Mouse", "27\" Monitor"][i % 5],
+        amount: ["$299.00", "$150.00", "$89.00", "$49.00", "$399.00"][i % 5],
+        status: ["Delivered", "Not Reachable", "Return", "On the way", "Delivered"][i % 5],
+        date: "2023-06-28",
+    })),
 ];
 
 export default function DashboardPage() {
     const [isLoading, setIsLoading] = React.useState(true);
     const [selectedStatus, setSelectedStatus] = React.useState("All");
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const itemsPerPage = 10;
     const now = today(getLocalTimeZone());
     const [dateRange, setDateRange] = React.useState<{ start: DateValue; end: DateValue } | null>({
         start: now.subtract({ days: 30 }),
@@ -173,6 +191,18 @@ export default function DashboardPage() {
     const filteredOrders = React.useMemo(() => {
         if (selectedStatus === "All") return recentOrders;
         return recentOrders.filter((order) => order.status === selectedStatus);
+    }, [selectedStatus]);
+
+    const paginatedOrders = React.useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredOrders.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredOrders, currentPage]);
+
+    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+
+    // Reset to first page when filter changes
+    React.useEffect(() => {
+        setCurrentPage(1);
     }, [selectedStatus]);
 
     const recentOrdersColumns: ColumnDef<typeof recentOrders[0]>[] = [
@@ -269,8 +299,8 @@ export default function DashboardPage() {
         },
         {
             accessorKey: "amount",
-            header: ({ column }) => <TableColumnHeader column={column} title="Price" />,
-            cell: ({ row }) => <div className="font-medium">{row.original.amount}</div>,
+            header: ({ column }) => <TableColumnHeader column={column} title="Price" className="text-right justify-end" />,
+            cell: ({ row }) => <div className="font-medium text-right">{row.original.amount}</div>,
         }
     ];
 
@@ -294,7 +324,7 @@ export default function DashboardPage() {
         <DashboardLayout>
             <div className="flex flex-col gap-4 py-2">
                 {/* Banner Section */}
-                <section className="relative overflow-hidden rounded-2xl bg-zinc-950 p-8 text-primary-foreground shadow-lg border border-white/5">
+                <section className="relative overflow-hidden rounded-2xl bg-zinc-950 p-6 md:p-8 text-primary-foreground shadow-lg border border-white/5">
                     {/* Background Image with Fill Behavior */}
                     <div className="absolute inset-0 z-0">
                         <img
@@ -385,7 +415,7 @@ export default function DashboardPage() {
 
                 {/* Recent Orders Section */}
                 <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-7">
-                    <Card className="lg:col-span-5">
+                    <Card className="lg:col-span-5 min-w-0">
                         <CardHeader className="flex flex-row items-center">
                             <div className="grid gap-2">
                                 <CardTitle>Recent Orders</CardTitle>
@@ -409,23 +439,49 @@ export default function DashboardPage() {
                             />
                         </div>
                         <CardContent>
-                            {filteredOrders.length > 0 ? (
-                                <TableProvider columns={recentOrdersColumns} data={filteredOrders}>
-                                    <TableHeader>
-                                        {({ headerGroup }) => (
-                                            <TableHeaderGroup headerGroup={headerGroup} key={headerGroup.id}>
-                                                {({ header }) => <TableHead header={header} key={header.id} />}
-                                            </TableHeaderGroup>
-                                        )}
-                                    </TableHeader>
-                                    <TableBody>
-                                        {({ row }) => (
-                                            <TableRow key={row.id} row={row}>
-                                                {({ cell }) => <TableCell cell={cell} key={cell.id} />}
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </TableProvider>
+                            {paginatedOrders.length > 0 ? (
+                                <div className="overflow-x-auto w-full">
+                                    <TableProvider columns={recentOrdersColumns} data={paginatedOrders}>
+                                        <TableHeader>
+                                            {({ headerGroup }) => (
+                                                <TableHeaderGroup headerGroup={headerGroup} key={headerGroup.id}>
+                                                    {({ header }) => <TableHead header={header} key={header.id} />}
+                                                </TableHeaderGroup>
+                                            )}
+                                        </TableHeader>
+                                        <TableBody>
+                                            {({ row }) => (
+                                                <TableRow key={row.id} row={row}>
+                                                    {({ cell }) => <TableCell cell={cell} key={cell.id} />}
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </TableProvider>
+                                    {/* Pagination Controls */}
+                                    {totalPages > 1 && (
+                                        <div className="flex items-center justify-end space-x-2 py-4">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                                disabled={currentPage === 1}
+                                            >
+                                                Previous
+                                            </Button>
+                                            <div className="text-sm font-medium">
+                                                Page {currentPage} of {totalPages}
+                                            </div>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                                disabled={currentPage === totalPages}
+                                            >
+                                                Next
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
                             ) : (
                                 <Empty className="py-12">
                                     <EmptyMedia>
@@ -454,7 +510,7 @@ export default function DashboardPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="lg:col-span-2">
+                    <Card className="lg:col-span-2 min-w-0">
                         <CardHeader>
                             <CardTitle>Sales</CardTitle>
                             <CardDescription>
@@ -463,22 +519,24 @@ export default function DashboardPage() {
                         </CardHeader>
                         <CardContent>
                             {recentOrders.length > 0 ? (
-                                <TableProvider columns={salesColumns} data={recentOrders.slice(0, 5)}>
-                                    <TableHeader>
-                                        {({ headerGroup }) => (
-                                            <TableHeaderGroup headerGroup={headerGroup} key={headerGroup.id}>
-                                                {({ header }) => <TableHead header={header} key={header.id} />}
-                                            </TableHeaderGroup>
-                                        )}
-                                    </TableHeader>
-                                    <TableBody>
-                                        {({ row }) => (
-                                            <TableRow key={row.id} row={row}>
-                                                {({ cell }) => <TableCell cell={cell} key={cell.id} />}
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </TableProvider>
+                                <div className="overflow-x-auto w-full">
+                                    <TableProvider columns={salesColumns} data={recentOrders.slice(0, 5)}>
+                                        <TableHeader>
+                                            {({ headerGroup }) => (
+                                                <TableHeaderGroup headerGroup={headerGroup} key={headerGroup.id}>
+                                                    {({ header }) => <TableHead header={header} key={header.id} />}
+                                                </TableHeaderGroup>
+                                            )}
+                                        </TableHeader>
+                                        <TableBody>
+                                            {({ row }) => (
+                                                <TableRow key={row.id} row={row}>
+                                                    {({ cell }) => <TableCell cell={cell} key={cell.id} />}
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </TableProvider>
+                                </div>
                             ) : (
                                 <Empty className="py-8">
                                     <EmptyMedia>
