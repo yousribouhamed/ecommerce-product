@@ -9,7 +9,7 @@ import {
     CardDescription,
     CardContent,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
     TableProvider,
     TableHeader,
@@ -24,6 +24,25 @@ import {
 import { Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { toastManager } from "@/components/ui/toast";
 
 type Employee = {
     id: string;
@@ -35,28 +54,74 @@ type Employee = {
     avatar_url?: string;
 };
 
-const mockEmployees: Employee[] = [
-    {
-        id: "1",
-        name: "Alice Johnson",
-        email: "alice@example.com",
-        role: "Admin",
-        status: "Active",
-        created_at: new Date().toISOString(),
-        avatar_url: "",
-    },
-    {
-        id: "2",
-        name: "Bob Smith",
-        email: "bob@example.com",
-        role: "Editor",
-        status: "Active",
-        created_at: new Date().toISOString(),
-    },
-];
-
 export default function EmployeesPage() {
-    const [employees] = React.useState<Employee[]>(mockEmployees);
+    const [employees, setEmployees] = React.useState<Employee[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+    const [formData, setFormData] = React.useState({
+        name: "",
+        email: "",
+        role: "Employee",
+        status: "Active"
+    });
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    const fetchEmployees = async () => {
+        try {
+            const response = await fetch("/api/employees");
+            if (response.ok) {
+                const data = await response.json();
+                setEmployees(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch employees", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchEmployees();
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        try {
+            const response = await fetch("/api/employees", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                toastManager.add({
+                    title: "Employee created",
+                    description: `${formData.name} has been added to the team.`,
+                    type: "success",
+                });
+                setIsDialogOpen(false);
+                setFormData({ name: "", email: "", role: "Employee", status: "Active" });
+                fetchEmployees();
+            } else {
+                const error = await response.json();
+                toastManager.add({
+                    title: "Error",
+                    description: error.error || "Failed to create employee",
+                    type: "error",
+                });
+            }
+        } catch (error) {
+            toastManager.add({
+                title: "Error",
+                description: "An unexpected error occurred",
+                type: "error",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const columns: ColumnDef<Employee>[] = [
         {
@@ -101,10 +166,83 @@ export default function EmployeesPage() {
                         <h1 className="text-3xl font-bold tracking-tight">Employees</h1>
                         <p className="text-muted-foreground">Manage your team members and their permissions.</p>
                     </div>
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Employee
-                    </Button>
+
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                        <DialogTrigger className={buttonVariants({ variant: "default" })}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add Employee
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Add Employee</DialogTitle>
+                                <DialogDescription>
+                                    Add a new member to your team. Click save when you're done.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <form onSubmit={handleSubmit}>
+                                <div className="grid gap-4 py-4 px-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="name">Name</Label>
+                                        <Input
+                                            id="name"
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            placeholder="John Doe"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="email">Email</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            placeholder="john@example.com"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="role">Role</Label>
+                                        <Select
+                                            value={formData.role}
+                                            onValueChange={(value) => setFormData({ ...formData, role: String(value || "Employee") })}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a role" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Admin">Admin</SelectItem>
+                                                <SelectItem value="Editor">Editor</SelectItem>
+                                                <SelectItem value="Viewer">Viewer</SelectItem>
+                                                <SelectItem value="Employee">Employee</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="status">Status</Label>
+                                        <Select
+                                            value={formData.status}
+                                            onValueChange={(value) => setFormData({ ...formData, status: value as "Active" | "Inactive" })}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Active">Active</SelectItem>
+                                                <SelectItem value="Inactive">Inactive</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button type="submit" disabled={isSubmitting}>
+                                        {isSubmitting ? "Saving..." : "Save changes"}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
                 </div>
                 <Card>
                     <CardHeader>
