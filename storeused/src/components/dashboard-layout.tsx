@@ -13,6 +13,7 @@ import {
     HelpCircle,
     LayoutAlt01,
     MessageChatCircle,
+    User01,
 } from "@untitledui/icons";
 import { FeaturedCardProgressBar } from "@/components/application/app-navigation/base-components/featured-cards";
 import type { NavItemType } from "@/components/application/app-navigation/config";
@@ -37,6 +38,11 @@ const navItems: NavItemType[] = [
     {
         label: "Customers",
         href: "/customers",
+        icon: User01,
+    },
+    {
+        label: "Employees",
+        href: "/employees",
         icon: Users01,
     },
     {
