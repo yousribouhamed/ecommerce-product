@@ -54,26 +54,25 @@ export const MobileNavigationHeader = ({ children }: PropsWithChildren) => {
                 isDismissable
                 className={({ isEntering, isExiting }) =>
                     cx(
-                        "fixed inset-0 z-50 cursor-pointer bg-overlay/70 pr-16 backdrop-blur-md lg:hidden",
+                        "fixed inset-0 z-50 cursor-pointer bg-overlay/70 backdrop-blur-md lg:hidden",
                         isEntering && "duration-300 ease-in-out animate-in fade-in",
                         isExiting && "duration-200 ease-in-out animate-out fade-out",
                     )
                 }
             >
                 {({ state }) => (
-                    <>
-                        <AriaButton
-                            aria-label="Close navigation menu"
-                            onPress={() => state.close()}
-                            className="fixed top-3 right-2 flex cursor-pointer items-center justify-center rounded-lg p-2 text-fg-white/70 outline-focus-ring hover:bg-white/10 hover:text-fg-white focus-visible:outline-2 focus-visible:outline-offset-2"
-                        >
-                            <CloseIcon className="size-6" />
-                        </AriaButton>
-
-                        <AriaModal className="w-full cursor-auto will-change-transform">
-                            <AriaDialog className="h-dvh outline-hidden focus:outline-hidden">{children}</AriaDialog>
-                        </AriaModal>
-                    </>
+                    <AriaModal className="w-full max-w-sm cursor-auto will-change-transform">
+                        <AriaDialog className="h-dvh outline-hidden focus:outline-hidden">
+                            <AriaButton
+                                aria-label="Close navigation menu"
+                                onPress={() => state.close()}
+                                className="absolute top-3 right-3 flex cursor-pointer items-center justify-center rounded-lg p-2 text-fg-secondary outline-focus-ring hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2"
+                            >
+                                <CloseIcon className="size-6" />
+                            </AriaButton>
+                            {children}
+                        </AriaDialog>
+                    </AriaModal>
                 )}
             </AriaModalOverlay>
         </AriaDialogTrigger>
